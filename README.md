@@ -17,3 +17,20 @@ Create three contracts:
 
 ## Notes
 
+* replaced
+    ```javascript
+    basicNft = await ethers.getContract("BasicNft")
+    ```
+  with
+    ```javascript
+    const basicNftDeployment = await deployments.get("BasicNft")
+    basicNft = await ethers.getContractAt(
+        basicNftDeployment.abi,
+        basicNftDeployment.address
+    )
+    ```
+
+* added `Ownable` constructor call to `RandomIpfsNft`:
+    ```javascript
+    Ownable(msg.sender)
+    ```
