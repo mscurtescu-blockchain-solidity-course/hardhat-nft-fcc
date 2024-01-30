@@ -17,6 +17,8 @@ Create three contracts:
 
 ## Notes
 
+* using `hardhat-toolbox` instead of `hardhat-waffle`
+  * which forces the usage of `ethers` version 6 instead of version 5 
 * replaced
     ```javascript
     basicNft = await ethers.getContract("BasicNft")
