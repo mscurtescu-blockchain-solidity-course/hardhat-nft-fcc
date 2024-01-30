@@ -29,8 +29,12 @@ Create three contracts:
         basicNftDeployment.address
     )
     ```
-
 * added `Ownable` constructor call to `RandomIpfsNft`:
     ```javascript
     Ownable(msg.sender)
     ```
+* replaced `.address` with `.target` on deployed contract instances
+* replaced `transactionReceipt.events` with `transactionReceipt.logs`
+* replaced `ethers.utils.parseEther` with `ethers.parseEther`
+* replaced `.sub` with `-`
+* replaced `.revertedWith(<error_class_name>)` with `revertedWithCustomError(<deployed_contract>, <error_class_name>)`

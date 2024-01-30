@@ -6,6 +6,7 @@ import "@chainlink/contracts/src/v0.8/vrf/VRFConsumerBaseV2.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 
+error RandomIpfsNft__AlreadyInitialized();
 error RandomIpfsNft__NeedMoreETHSent();
 error RandomIpfsNft__RangeOutOfBounds();
 error RandomIpfsNft__TransferFailed();
@@ -34,6 +35,7 @@ contract RandomIpfsNft is VRFConsumerBaseV2, ERC721URIStorage, Ownable {
     uint256 internal constant MAX_CHANCE_VALUE = 100;
     string[] internal s_dogTokenUris;
     uint256 internal i_mintFee;
+    bool private s_initialized;
 
     // Events
     event NftRequested(uint256 indexed requestId, address indexed requester);
@@ -51,8 +53,9 @@ contract RandomIpfsNft is VRFConsumerBaseV2, ERC721URIStorage, Ownable {
         i_subscriptionId = subscriptionId;
         i_gasLane = gasLane;
         i_callbackGasLimit = callbackGasLimit;
-        s_dogTokenUris = dogTokenUris;
         i_mintFee = mintFee;
+        s_tokenCounter = 0;
+        _initializeContract(dogTokenUris);
     }
 
     function requestNft() public payable returns (uint256 requestId) {
@@ -75,6 +78,7 @@ contract RandomIpfsNft is VRFConsumerBaseV2, ERC721URIStorage, Ownable {
     function fulfillRandomWords(uint256 requestId, uint256[] memory randomWords) internal override {
         address dogOwner = s_requestIdToSender[requestId];
         uint256 newTokenId = s_tokenCounter;
+        s_tokenCounter += 1;
         uint256 moddedRng = randomWords[0] % MAX_CHANCE_VALUE;
         Breed dogBreed = getBreedFromModdedRng(moddedRng);
         _safeMint(dogOwner, newTokenId);
@@ -107,6 +111,15 @@ contract RandomIpfsNft is VRFConsumerBaseV2, ERC721URIStorage, Ownable {
     function getChanceArray() public pure returns (uint256[3] memory) {
         return [10, 40, MAX_CHANCE_VALUE];
     }
+
+    function _initializeContract(string[3] memory dogTokenUris) private {
+        if (s_initialized) {
+            revert RandomIpfsNft__AlreadyInitialized();
+        }
+        s_dogTokenUris = dogTokenUris;
+        s_initialized = true;
+    }
+
     function getMintFee() public view returns (uint256) {
         return i_mintFee;
     }
@@ -117,5 +130,9 @@ contract RandomIpfsNft is VRFConsumerBaseV2, ERC721URIStorage, Ownable {
 
     function getTokenCounter() public view returns (uint256) {
         return s_tokenCounter;
+    }
+
+    function getInitialized() public view returns (bool) {
+        return s_initialized;
     }
 }
