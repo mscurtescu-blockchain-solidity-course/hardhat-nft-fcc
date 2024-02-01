@@ -75,7 +75,7 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
     // Verify the deployment
     if (!developmentChains.includes(network.name) && process.env.ETHERSCAN_API_KEY) {
         log("Verifying...")
-        await verify(randomIpfsNft.target, arguments)
+        await verify(randomIpfsNft.address, arguments)
     }
 }
 
