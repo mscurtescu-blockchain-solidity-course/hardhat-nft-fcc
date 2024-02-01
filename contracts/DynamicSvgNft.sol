@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.8;
+pragma solidity ^0.8.12;
 
 import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
@@ -27,8 +27,8 @@ contract DynamicSvgNft is ERC721 {
     }
 
     function svgToImageURI(string memory svg) public pure returns (string memory) {
-        string memory svgBase64Encoded = Base64.encode(bytes(string(abi.encodePacked(svg))));
-        return string(abi.encodePacked(base64EncodedSvgPrefix, svgBase64Encoded));
+        string memory svgBase64Encoded = Base64.encode(bytes(svg));
+        return string.concat(base64EncodedSvgPrefix, svgBase64Encoded);
     }
 
     function mintNft(int256 hiValue) public {
@@ -64,12 +64,11 @@ contract DynamicSvgNft is ERC721 {
         }
 
         return
-            string(
-            abi.encodePacked(
+            string.concat(
                 _baseURI(),
                 Base64.encode(
                     bytes(
-                        abi.encodePacked(
+                        string.concat(
                             '{"name":"',
                             name(), // You can add whatever name here
                             '", "description":"An NFT that changes based on the Chainlink Feed", ',
@@ -79,8 +78,7 @@ contract DynamicSvgNft is ERC721 {
                         )
                     )
                 )
-            )
-        );
+            );
     }
 
     function getLowSVG() public view returns (string memory) {
