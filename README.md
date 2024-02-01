@@ -19,6 +19,8 @@ Create three contracts:
 
 * using `hardhat-toolbox` instead of `hardhat-waffle`
   * which forces the usage of `ethers` version 6 instead of version 5 
+* using `@openzeppelin/contracts` version 5 instead of 4
+  * which required the implementation of `_exists`
 * replaced
     ```javascript
     basicNft = await ethers.getContract("BasicNft")
