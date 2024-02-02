@@ -9,6 +9,8 @@ const HI_SVG = fs.readFileSync("./images/dynamicNft/happy.svg", { encoding: "utf
 const SVG_IMAGE_URI_PREFIX = "data:image/svg+xml;base64,"
 const TOKEN_URI_PREFIX = "data:application/json;base64,"
 
+const HIGH_VALUE = ethers.parseEther("1") // 1 dollar per ether
+
 !developmentChains.includes(network.name)
     ? describe.skip
     : describe("Dynamic SVG NFT Unit Tests", function () {
@@ -45,11 +47,10 @@ const TOKEN_URI_PREFIX = "data:application/json;base64,"
 
         describe("mintNft", () => {
             it("emits an event and creates the NFT", async function () {
-                const highValue = ethers.parseEther("1") // 1 dollar per ether
-                await expect(dynamicSvgNft.mintNft(highValue)).to.emit(
+                await expect(dynamicSvgNft.mintNft(HIGH_VALUE)).to.emit(
                     dynamicSvgNft,
                     "CreatedNFT"
-                ).withArgs(0, highValue);
+                ).withArgs(0, HIGH_VALUE);
                 const tokenCounter = await dynamicSvgNft.getTokenCounter()
                 assert.equal(tokenCounter.toString(), "1")
                 const tokenURI = await dynamicSvgNft.tokenURI(0)
@@ -64,6 +65,29 @@ const TOKEN_URI_PREFIX = "data:application/json;base64,"
             })
         })
 
+        describe("getTokenCounter", () => {
+            it("Has token counter at zero after contract creation", async function () {
+                const counter = await dynamicSvgNft.getTokenCounter()
+
+                assert.equal(counter, 0)
+            })
+            it("Increments by one after minting", async function () {
+                let counter = await dynamicSvgNft.getTokenCounter()
+                assert.equal(counter, 0)
+
+                let txResponse = await dynamicSvgNft.mintNft(HIGH_VALUE)
+                await txResponse.wait(1)
+
+                counter = await dynamicSvgNft.getTokenCounter()
+                assert.equal(counter, 1)
+
+                txResponse = await dynamicSvgNft.mintNft(HIGH_VALUE)
+                await txResponse.wait(1)
+
+                counter = await dynamicSvgNft.getTokenCounter()
+                assert.equal(counter, 2)
+            })
+        })
     })
 
 function assertSvgImageURI(imageUri) {

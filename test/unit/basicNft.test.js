@@ -51,4 +51,28 @@ const { developmentChains } = require("../../helper-hardhat-config")
                 assert.equal(owner, deployerAddress)
             })
         })
+
+        describe("getTokenCounter", () => {
+            it("Has token counter at zero after contract creation", async function () {
+                const counter = await basicNft.getTokenCounter()
+
+                assert.equal(counter, 0)
+            })
+            it("Increments by one after minting", async function () {
+                let counter = await basicNft.getTokenCounter()
+                assert.equal(counter, 0)
+
+                let txResponse = await basicNft.mintNft()
+                await txResponse.wait(1)
+
+                counter = await basicNft.getTokenCounter()
+                assert.equal(counter, 1)
+
+                txResponse = await basicNft.mintNft()
+                await txResponse.wait(1)
+
+                counter = await basicNft.getTokenCounter()
+                assert.equal(counter, 2)
+            })
+        })
     })

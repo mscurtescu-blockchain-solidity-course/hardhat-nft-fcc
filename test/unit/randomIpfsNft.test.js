@@ -78,15 +78,7 @@ const { developmentChains } = require("../../helper-hardhat-config")
                         }
                     })
                     try {
-                        const fee = await randomIpfsNft.getMintFee()
-                        const requestNftResponse = await randomIpfsNft.requestNft({
-                            value: fee.toString(),
-                        })
-                        const requestNftReceipt = await requestNftResponse.wait(1)
-                        await vrfCoordinatorV2Mock.fulfillRandomWords(
-                            requestNftReceipt.logs[1].args.requestId,
-                            randomIpfsNft.target
-                        )
+                        await mint(randomIpfsNft, vrfCoordinatorV2Mock)
                     } catch (e) {
                         console.log(e)
                         reject(e)
@@ -114,4 +106,38 @@ const { developmentChains } = require("../../helper-hardhat-config")
                 )
             })
         })
+
+        describe("getTokenCounter", () => {
+            it("Has token counter at zero after contract creation", async function () {
+                const counter = await randomIpfsNft.getTokenCounter()
+
+                assert.equal(counter, 0)
+            })
+            it("Increments by one after minting", async function () {
+                let counter = await randomIpfsNft.getTokenCounter()
+                assert.equal(counter, 0)
+
+                await mint(randomIpfsNft, vrfCoordinatorV2Mock)
+
+                counter = await randomIpfsNft.getTokenCounter()
+                assert.equal(counter, 1)
+
+                await mint(randomIpfsNft, vrfCoordinatorV2Mock)
+
+                counter = await randomIpfsNft.getTokenCounter()
+                assert.equal(counter, 2)
+            })
+        })
     })
+
+async function mint(randomIpfsNft, vrfCoordinatorV2Mock) {
+    const fee = await randomIpfsNft.getMintFee()
+    const requestNftResponse = await randomIpfsNft.requestNft({
+        value: fee.toString(),
+    })
+    const requestNftReceipt = await requestNftResponse.wait(1)
+    await vrfCoordinatorV2Mock.fulfillRandomWords(
+        requestNftReceipt.logs[1].args.requestId,
+        randomIpfsNft.target
+    )
+}
